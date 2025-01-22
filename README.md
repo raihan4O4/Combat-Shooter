@@ -16,4 +16,5 @@
 This project is based on a tutorial by the [WITS Gaming YouTube Channel]. The tutorial provided the fundamental structure and coding concepts that were used to build this game. It’s a great resource for those looking to learn about Unity and game development.
 
 You can visit the channel for more tutorials and content related to game development.
+
 Note: Assets are not included in this repo.

@@ -29,6 +29,15 @@ public class PlayerController : MonoBehaviour
     public Transform surfaceCheck;
     public LayerMask surfaceMask;
 
+    [Header("Player Health")]
+    public float playerHealth = 1000f;
+    private float playerCurrentHealth;
+
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        playerCurrentHealth = playerHealth;
+    }
     void Update()
     {
         isOnSurface = Physics.CheckSphere(surfaceCheck.position, surfaceDistance, surfaceMask);
@@ -125,5 +134,21 @@ public class PlayerController : MonoBehaviour
                 currentPlayerSprint = 0f;
             }
         }
+    }
+
+    public void playerDamage(float damage)
+    {
+        playerCurrentHealth -= damage;
+
+        if (playerCurrentHealth <= 0)
+        {
+            PlayerDie();
+        }
+    }
+
+    private void PlayerDie()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Object.Destroy(gameObject);
     }
 }

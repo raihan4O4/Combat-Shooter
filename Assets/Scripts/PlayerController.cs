@@ -136,7 +136,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void playerDamage(float damage)
+    public void PlayerDamage(float damage)
     {
         playerCurrentHealth -= damage;
 

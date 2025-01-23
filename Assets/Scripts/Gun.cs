@@ -8,7 +8,6 @@ public class Gun : MonoBehaviour
     [Header("Gun data")]
     public Camera Maincamera;
     public float shootRange = 100f;
-    public float enemyDamage = 10f;
     public PlayerController playerController;
     public Animator playerAnimator;
     private float giveDamage = 2f;
@@ -25,6 +24,8 @@ public class Gun : MonoBehaviour
     [Header("Particle Effects")]
     public ParticleSystem muzzleSpark;
     public GameObject woodDestroyEffect;
+    public GameObject BloodEffect;
+
 
     void Awake()
     {
@@ -88,12 +89,18 @@ public class Gun : MonoBehaviour
         if (Physics.Raycast(Maincamera.transform.position, Maincamera.transform.forward, out RaycastHit hit, shootRange))
         {
             Debug.Log(hit.transform.name);
-            ObjectDamage objectDamage = hit.transform.GetComponent<ObjectDamage>();
-            if(objectDamage != null)
+            
+            if(hit.transform.TryGetComponent<ObjectDamage>(out var objectDamage))
             {
                 objectDamage.ObjectHitDamage(giveDamage);
-                GameObject destroyWoodBox = Instantiate(woodDestroyEffect, hit.point, Quaternion.LookRotation(hit.normal));
-                Destroy(destroyWoodBox, 1f);
+                GameObject woodBulletEffect = Instantiate(woodDestroyEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                Destroy(woodBulletEffect, 1f);
+            }
+            else if(hit.transform.TryGetComponent<Enemy>(out var enemy))
+            {
+                enemy.EnemyDamage(giveDamage);
+                GameObject bloodEffect = Instantiate(BloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                Destroy(bloodEffect, 1f);
             }
         }
     }

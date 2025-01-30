@@ -1,5 +1,6 @@
 using Mono.Cecil.Cil;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class Gun : MonoBehaviour
@@ -20,11 +21,18 @@ public class Gun : MonoBehaviour
     private int mag = 15;
     private float presentAmmo;
     private bool isReloading = false;
+    public TextMeshProUGUI ammoText;
+    public TextMeshProUGUI magText;
 
     [Header("Particle Effects")]
     public ParticleSystem muzzleSpark;
     public GameObject woodDestroyEffect;
     public GameObject BloodEffect;
+
+    [Header("Sound Effects")]
+    public AudioSource audioSource;
+    public AudioClip shootAudioClip;
+    public AudioClip reloadAudioClip;
 
 
     void Awake()
@@ -38,13 +46,13 @@ public class Gun : MonoBehaviour
         if (isReloading)
             return;
 
-        if(presentAmmo <= 0)
+        if (presentAmmo <= 0)
         {
             StartCoroutine(Reload());
             return;
         }
 
-        if(Input.GetButton("Fire1") && Time.time >= shootInterval)
+        if (Input.GetButton("Fire1") && Time.time >= shootInterval)
         {
             playerAnimator.SetBool("Fire", true);
             playerAnimator.SetBool("Idle", false);
@@ -52,7 +60,7 @@ public class Gun : MonoBehaviour
             shootInterval = Time.time + 1f / fireCharge;
             Shoot();
         }
-        else if(Input.GetButton("Fire1") && Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+        else if (Input.GetButton("Fire1") && Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
             playerAnimator.SetBool("FireWalk", true);
             playerAnimator.SetBool("Walk", true);
@@ -75,28 +83,33 @@ public class Gun : MonoBehaviour
 
     public void Shoot()
     {
-        if(mag == 0)
+        if (mag == 0)
         {
             //
         }
         presentAmmo--;
 
-        if(presentAmmo <= 0)
+        if (presentAmmo <= 0)
         {
             mag--;
         }
-            muzzleSpark.Play();
+
+        ammoText.text = $"Ammo: {presentAmmo}";
+        magText.text = $"Mag: {mag}";
+
+        muzzleSpark.Play();
+        audioSource.PlayOneShot(shootAudioClip);
         if (Physics.Raycast(Maincamera.transform.position, Maincamera.transform.forward, out RaycastHit hit, shootRange))
         {
             Debug.Log(hit.transform.name);
-            
-            if(hit.transform.TryGetComponent<ObjectDamage>(out var objectDamage))
+
+            if (hit.transform.TryGetComponent<ObjectDamage>(out var objectDamage))
             {
                 objectDamage.ObjectHitDamage(giveDamage);
                 GameObject woodBulletEffect = Instantiate(woodDestroyEffect, hit.point, Quaternion.LookRotation(hit.normal));
                 Destroy(woodBulletEffect, 1f);
             }
-            else if(hit.transform.TryGetComponent<Enemy>(out var enemy))
+            else if (hit.transform.TryGetComponent<EnemyAgent>(out var enemy))
             {
                 enemy.EnemyDamage(giveDamage);
                 GameObject bloodEffect = Instantiate(BloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
@@ -107,10 +120,13 @@ public class Gun : MonoBehaviour
 
     IEnumerator Reload()
     {
+        ammoText.text = $"Ammo: {MaxAmmo}";
+        magText.text = $"Mag: {mag}";
         playerController.playerSpeed = 0;
         playerController.playerSprint = 0;
         isReloading = true;
         Debug.Log("Reloading...");
+        audioSource.PlayOneShot(reloadAudioClip);
         playerAnimator.SetBool("Reload", true);
         yield return new WaitForSeconds(reloadingTime);
         playerAnimator.SetBool("Reload", false);

@@ -2,6 +2,7 @@ using Unity.Android.Gradle;
 using Unity.Android.Gradle.Manifest;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityProgressBar;
 
 public class PlayerController : MonoBehaviour
 {
@@ -32,12 +33,26 @@ public class PlayerController : MonoBehaviour
     [Header("Player Health")]
     public float playerHealth = 1000f;
     private float playerCurrentHealth;
+    public ProgressBar playerHealthBar;
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         playerCurrentHealth = playerHealth;
+        IntialHealth();
     }
+
+    private void IntialHealth()
+    {
+        playerHealthBar.MaxValue = playerHealth;
+        playerHealthBar.Value = playerHealth;
+    }
+
+    private void SetHealthBar()
+    {
+        playerHealthBar.Value = playerCurrentHealth;
+    }
+
     void Update()
     {
         isOnSurface = Physics.CheckSphere(surfaceCheck.position, surfaceDistance, surfaceMask);
@@ -139,6 +154,7 @@ public class PlayerController : MonoBehaviour
     public void PlayerDamage(float damage)
     {
         playerCurrentHealth -= damage;
+        SetHealthBar();
 
         if (playerCurrentHealth <= 0)
         {
@@ -149,6 +165,6 @@ public class PlayerController : MonoBehaviour
     private void PlayerDie()
     {
         Cursor.lockState = CursorLockMode.None;
-        Object.Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

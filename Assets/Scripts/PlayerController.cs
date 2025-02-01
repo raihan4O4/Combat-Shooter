@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Player camera")]
     public Transform playerCameraTransform;
+    public bool isOnMobile;
+    public FixedJoystick joystick;
 
     [Header("Player Animator and gravity")]
     public CharacterController characterController;
@@ -86,10 +88,24 @@ public class PlayerController : MonoBehaviour
 
     public void PlayerMove()
     {
-        float horizontalAxiz = Input.GetAxis("Horizontal");
-        float verticalAxiz = Input.GetAxis("Vertical");
+        if(isOnMobile)
+        {
+            float horizontalAxis = joystick.Horizontal;
+            float verticalAxis = joystick.Vertical;
+            Movement(horizontalAxis, verticalAxis);
+        }
+        else
+        {
+            float horizontalAxis = Input.GetAxis("Horizontal");
+            float verticalAxis = Input.GetAxis("Vertical");
 
-        Vector3 direction = new Vector3(horizontalAxiz, 0f, verticalAxiz).normalized;
+            Movement(horizontalAxis, verticalAxis);
+        }
+    }
+
+    public void Movement(float horizontalAxis, float verticalAxis)
+    {
+        Vector3 direction = new Vector3(horizontalAxis, 0f, verticalAxis).normalized;
 
         if (direction.magnitude >= 0.1f)
         {
@@ -120,7 +136,7 @@ public class PlayerController : MonoBehaviour
     }
 
     public void PlayerSprint()
-    {
+    {   
         if (Input.GetButton("Sprint") && Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) && isOnSurface)
         {
             float horizontalAxiz = Input.GetAxis("Horizontal");

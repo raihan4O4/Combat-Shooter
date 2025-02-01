@@ -48,6 +48,7 @@ public class PlayerAgent : MonoBehaviour
 
     void Start()
     {
+        playerCollider = gameObject.GetComponent<CapsuleCollider>();
     }
 
     void Update()

@@ -34,6 +34,8 @@ public class Gun : MonoBehaviour
     public AudioClip shootAudioClip;
     public AudioClip reloadAudioClip;
 
+    private bool isShooting;
+
 
     void Awake()
     {
@@ -52,7 +54,7 @@ public class Gun : MonoBehaviour
             return;
         }
 
-        if (Input.GetButton("Fire1") && Time.time >= shootInterval)
+        if (isShooting && Time.time >= shootInterval)
         {
             playerAnimator.SetBool("Fire", true);
             playerAnimator.SetBool("Idle", false);
@@ -60,25 +62,38 @@ public class Gun : MonoBehaviour
             shootInterval = Time.time + 1f / fireCharge;
             Shoot();
         }
-        else if (Input.GetButton("Fire1") && Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+
+        if (!playerController.isOnMobile)
         {
-            playerAnimator.SetBool("FireWalk", true);
-            playerAnimator.SetBool("Walk", true);
-            playerAnimator.SetBool("Idle", false);
-            playerAnimator.SetBool("IdleAim", true);
-            playerAnimator.SetBool("Reload", false);
+            if (Input.GetButton("Fire1") && Time.time >= shootInterval)
+            {
+                playerAnimator.SetBool("Fire", true);
+                playerAnimator.SetBool("Idle", false);
+
+                shootInterval = Time.time + 1f / fireCharge;
+                Shoot();
+            }
+            else if (Input.GetButton("Fire1") && Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            {
+                playerAnimator.SetBool("FireWalk", true);
+                playerAnimator.SetBool("Walk", true);
+                playerAnimator.SetBool("Idle", false);
+                playerAnimator.SetBool("IdleAim", true);
+                playerAnimator.SetBool("Reload", false);
+            }
+            else if (Input.GetButton("Fire1") && Input.GetButton("Fire2"))
+            {
+                playerAnimator.SetBool("FireWalk", true);
+                playerAnimator.SetBool("Idle", false);
+            }
+            else
+            {
+                playerAnimator.SetBool("FireWalk", false);
+                playerAnimator.SetBool("Fire", false);
+                playerAnimator.SetBool("Idle", true);
+            }
         }
-        else if (Input.GetButton("Fire1") && Input.GetButton("Fire2"))
-        {
-            playerAnimator.SetBool("FireWalk", true);
-            playerAnimator.SetBool("Idle", false);
-        }
-        else
-        {
-            playerAnimator.SetBool("FireWalk", false);
-            playerAnimator.SetBool("Fire", false);
-            playerAnimator.SetBool("Idle", true);
-        }
+
     }
 
     public void Shoot()
@@ -135,5 +150,17 @@ public class Gun : MonoBehaviour
         playerController.playerSprint = 3f;
         isReloading = false;
 
+    }
+
+    public void StartShooting()
+    {
+        isShooting = true;
+    }
+
+    public void StopShooting()
+    {
+        isShooting = false;
+        playerAnimator.SetBool("Fire", false);
+        playerAnimator.SetBool("Idle", true);
     }
 }
